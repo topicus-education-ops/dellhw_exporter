@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  schedule:
+    - cron:  '00 14 * * 0'
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - name: Check out
+      uses: actions/checkout@v2          
+          
+    - name: Get Latest Release
+      id: latest_version
+      uses: abatilo/release-info-action@v1.1.0
+      with:
+        owner: topicus-education-ops
+        repo: dellhw_exporter
+    
+    - name: Get Latest Upstream Release
+      id: latest_upstream_version
+      uses: abatilo/release-info-action@v1.1.0
+      with:
+        owner: galexrt
+        repo: dellhw_exporter
+
+    - name: Download upstream release
+      if: steps.latest_version.outputs.latest_tag != steps.latest_upstream_version.outputs.latest_tag
+      uses: Legion2/download-release-action@v2.1.0
+      with:
+        repository: galexrt/dellhw_exporter
+        tag: ${{ steps.latest_upstream_version.outputs.latest_tag }}
+
+    - name: Build
+      if: steps.latest_version.outputs.latest_tag != steps.latest_upstream_version.outputs.latest_tag
+      env:
+        GOPATH: ${{ github.workspace }}
+        TAG: ${{ steps.latest_upstream_version.outputs.latest_tag }}
+      run: |
+        export VERSION="${TAG#v}"
+        export SOURCEDIR="dellhw_exporter-${VERSION}"
+        make -C ${SOURCEDIR} crossbuild
+        mkdir -p dist
+        cd ${SOURCEDIR}
+        for dir in .build/*; do
+          arch=${dir#*/}
+          echo -e "\nPackaging ${arch}:"
+          tar cvzf ../dist/dellhw_exporter-${VERSION}.${arch}.tar.gz --transform "s,^,dellhw_exporter-${VERSION}.${arch}/,S" --transform "s,.build/${arch}/,," LICENSE NOTICE .build/${arch}/dellhw_exporter
+        done
+        echo -e "\nGenerating checksums"
+        cd ../dist
+        sha256sum *.tar.gz > sha256sums.txt
+
+    - name: Release to GitHub
+      if: steps.latest_version.outputs.latest_tag != steps.latest_upstream_version.outputs.latest_tag
+      uses: opspresso/action-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.latest_upstream_version.outputs.latest_tag }}
+        BODY: "Version ${{ steps.latest_upstream_version.outputs.latest_tag }} was released at ${{ steps.latest_version.outputs.latest_tag_published_at }}"
+        ASSET_PATH: "dist"
