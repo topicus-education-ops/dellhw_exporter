@@ -1,4 +1,7 @@
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/topicus-education-ops/dellhw_exporter?label=Release)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/topicus-education-ops/dellhw_exporter?label=release)
+![GitHub release date (latest SemVer)](https://img.shields.io/github/release-date/topicus-education-ops/dellhw_exporter?label=release%20date)
+![GitHub downloads (latest)](https://img.shields.io/github/downloads/topicus-education-ops/dellhw_exporter/latest/total?label=downloads)
+![GitHub license (license)](https://img.shields.io/github/license/galexrt/dellhw_exporter?label=license)
 # dellhw_exporter
 
 https://github.com/galexrt/dellhw_exporter
