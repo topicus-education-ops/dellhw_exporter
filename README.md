@@ -1,5 +1,9 @@
-fix ldflags in `.promu.yml`
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/topicus-education-ops/dellhw_exporter?label=Release)
+# dellhw_exporter
 
+https://github.com/galexrt/dellhw_exporter
+
+## Release
 ```
 make crossbuild
 
